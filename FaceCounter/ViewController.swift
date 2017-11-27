@@ -22,7 +22,7 @@ class ViewController: UIViewController {
         
         
         self.view.addSubview(imageView)
-     
+        
         // Check for faces
         let request = VNDetectFaceRectanglesRequest(completionHandler: { (vnrequest, error) in
             
@@ -38,8 +38,9 @@ class ViewController: UIViewController {
                     guard let faceObservation = result as? VNFaceObservation else { return }
                     
                     let x = self.view.frame.width * faceObservation.boundingBox.origin.x
-                    let height = imageView.frame.height * faceObservation.boundingBox.height
-                    let y = imageView.frame.height * (1 - faceObservation.boundingBox.origin.y) - height
+                    let height = scaledHeight * faceObservation.boundingBox.height
+                    imageView.backgroundColor = .purple
+                    let y = scaledHeight * (1 - faceObservation.boundingBox.origin.y) - height
                     
                     let width = self.view.frame.width * faceObservation.boundingBox.width
                     
