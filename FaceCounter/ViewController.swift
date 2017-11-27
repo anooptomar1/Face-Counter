@@ -35,9 +35,16 @@ class ViewController: UIViewController {
                     
                     guard let faceObservation = result as? VNFaceObservation else { return }
                     
+                    let x = self.view.frame.width * faceObservation.boundingBox.origin.x
+                    let height = imageView.frame.height * faceObservation.boundingBox.height
+                    let y = imageView.frame.height * (1 - faceObservation.boundingBox.origin.y) - height
+                    
+                    let width = self.view.frame.width * faceObservation.boundingBox.width
+                    
                     let redView = UIView()
                     redView.backgroundColor = .red
-                    redView.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
+                    redView.alpha = 0.5
+                    redView.frame = CGRect(x: x, y: y, width: width, height: height)
                     self.view.addSubview(redView)
                     
                     print(faceObservation.boundingBox)
