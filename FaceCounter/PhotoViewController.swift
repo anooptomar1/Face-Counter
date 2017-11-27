@@ -13,7 +13,6 @@ class PhotoViewController: UIViewController {
     @IBOutlet weak var selectImageButton: UIButton!
     @IBOutlet weak var countLabel: UILabel!
     var faceRectangles = [BorderedView]()
-//    var inputImage:UIImage?
     var imageView:UIImageView!
     let faceRectanglesRequest = VNDetectFaceRectanglesRequest()
     var scaledHeight:CGFloat?
@@ -28,50 +27,6 @@ class PhotoViewController: UIViewController {
         view.bringSubview(toFront: countLabel)
         view.bringSubview(toFront: selectImageButton)
         setImage(image: #imageLiteral(resourceName: "dorsey"))
-        
-        // Check for faces
-//        let request = VNDetectFaceRectanglesRequest(completionHandler: { (vnrequest, error) in
-//
-//            if let error = error {
-//                print("VNRequest Error:", error)
-//            }
-//            else {
-//
-//                if let numOfResults = vnrequest.results?.count {
-//                    self.countLabel.text = "Faces detected: \(numOfResults)"
-//                    self.view.bringSubview(toFront: self.countLabel)
-//                }
-//
-//                vnrequest.results?.forEach({ (result) in
-//                    print("result:",result)
-//
-//                    guard let faceObservation = result as? VNFaceObservation else { return }
-//
-//                    let x = self.view.frame.width * faceObservation.boundingBox.origin.x
-//                    let height = scaledHeight * faceObservation.boundingBox.height
-//                    imageView.backgroundColor = .black
-//
-//                    let topOfImageY = (imageView.bounds.height - scaledHeight) / 2
-//                    let y = topOfImageY + (scaledHeight * (1 - faceObservation.boundingBox.origin.y)) - height
-//
-//                    let width = self.view.frame.width * faceObservation.boundingBox.width
-//
-//                    let faceRectangle = BorderedView(color: .red, frame: CGRect.zero)
-//                    faceRectangle.frame = CGRect(x: x, y: y, width: width, height: height)
-//                    self.view.addSubview(faceRectangle)
-//
-//                    print(faceObservation.boundingBox)
-//                })
-//            }
-//            })
-//
-//        let handler = VNImageRequestHandler(cgImage: inputImage.cgImage!, options: [:])
-//        do {
-//            try handler.perform([request])
-//        } catch let handlerError {
-//            print("Handler perform error:",handlerError)
-//        }
-        
     }
     
     private func setImage(image:UIImage?) {
@@ -87,10 +42,17 @@ class PhotoViewController: UIViewController {
     }
     
     private func detectFaces() {
-        guard let unwrappedImage = imageView.image?.cgImage else {
+        guard let unwrappedImage = imageView.image else {
             return
         }
-        let imageRequestHandler = VNImageRequestHandler(cgImage: unwrappedImage, options: [:])
+        
+        let orientation = unwrappedImage.imageOrientation.getCGImagePropertyOrientation()
+        
+        guard let cgImage = unwrappedImage.cgImage else {
+            return
+        }
+        
+        let imageRequestHandler = VNImageRequestHandler(cgImage: cgImage, orientation: orientation, options: [:])
         do {
             try imageRequestHandler.perform([faceRectanglesRequest])
             if let requestResult = faceRectanglesRequest.results as? [VNFaceObservation] {
@@ -124,6 +86,8 @@ class PhotoViewController: UIViewController {
             self.view.addSubview(faceRectangle)
             faceRectangles.append(faceRectangle)
         }
+        view.bringSubview(toFront: countLabel)
+        view.bringSubview(toFront: selectImageButton)
     }
 
     
@@ -146,14 +110,36 @@ extension PhotoViewController: UIImagePickerControllerDelegate, UINavigationCont
         guard let unwrappedImage = info[UIImagePickerControllerOriginalImage] as? UIImage else {
             return
         }
-        print("metadata: ",unwrappedImage.imageOrientation)
-        
         setImage(image: unwrappedImage)
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         defer {
             imagePicker.dismiss(animated: true, completion: nil)
+        }
+    }
+}
+
+extension UIImageOrientation {
+    
+    func getCGImagePropertyOrientation() -> CGImagePropertyOrientation {
+        switch self {
+        case .up:
+            return .up
+        case .down:
+            return .down
+        case .left:
+            return .left
+        case .right:
+            return .right
+        case .upMirrored:
+            return .upMirrored
+        case .downMirrored:
+            return .downMirrored
+        case .leftMirrored:
+            return .leftMirrored
+        case .rightMirrored:
+            return .rightMirrored
         }
     }
 }
