@@ -23,19 +23,18 @@ class VideoCaptureViewController: UIViewController, AVCaptureVideoDataOutputSamp
     var requestHandler = VNSequenceRequestHandler()
     var captureSession = AVCaptureSession()
     var currentCamera = CameraDirection.front
-    
+    @IBOutlet weak var numOfFacesLabel: UILabel!
     @IBOutlet weak var switchCameraButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-//        redView = BorderedView(color: UIColor.red, frame: CGRect.zero)
         
         setupAVSession(cameraDirection: currentCamera)
         let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
         view.layer.addSublayer(previewLayer)
         previewLayer.frame = view.bounds
         
+        view.bringSubview(toFront: numOfFacesLabel)
         view.bringSubview(toFront: switchCameraButton)
     }
     
@@ -84,8 +83,6 @@ class VideoCaptureViewController: UIViewController, AVCaptureVideoDataOutputSamp
         guard let pixelBuffer:CVPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {return}
         let ciImage = CIImage(cvImageBuffer: pixelBuffer, options: [:])
         
-        // Playing with orientations why does this matter?
-        // Can types work other than ciimage? pixel buffer?
         var setupImage:CIImage?
         if currentCamera == .front {
             setupImage = ciImage.oriented(.leftMirrored)
@@ -103,25 +100,21 @@ class VideoCaptureViewController: UIViewController, AVCaptureVideoDataOutputSamp
         do {
             try requestHandler.perform([detectFaceRequest], on: image)
             if let requestResults = detectFaceRequest.results as? [VNFaceObservation] {
-                if requestResults.isEmpty {
-                    DispatchQueue.main.async {
-                        for view in self.faceRectangles {
-                            view.removeFromSuperview()
-                        }
+                
+                DispatchQueue.main.async {
+                    self.numOfFacesLabel.text = "Faces detected: \(requestResults.count)"
+                    for view in self.faceRectangles {
+                        view.removeFromSuperview()
                     }
                 }
-                else {
-                    // Only create the view for the first face found
-                    drawRectangle(faceObservations: requestResults)
-                    
-                }
+                drawRectangles(faceObservations: requestResults)
             }
         } catch let handlerError {
             print("Bad request perform:",handlerError)
         }
     }
     
-    func drawRectangle(faceObservations:[VNFaceObservation]) {
+    func drawRectangles(faceObservations:[VNFaceObservation]) {
         
         for (index, faceObservation) in faceObservations.enumerated() {
             DispatchQueue.main.async {

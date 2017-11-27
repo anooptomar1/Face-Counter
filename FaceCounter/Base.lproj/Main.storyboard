@@ -31,16 +31,26 @@
                                     <action selector="switchCameraButtonPressed:" destination="EtF-Gf-9fT" eventType="touchUpInside" id="qZR-TE-f3x"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Faces detected: 0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fsK-Az-JN0">
+                                <rect key="frame" x="119" y="527" width="137.5" height="21"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="eLL-t5-MPG" firstAttribute="trailing" secondItem="HgA-W6-U2e" secondAttribute="trailing" constant="30" id="7sc-zi-Dq9"/>
                             <constraint firstItem="HgA-W6-U2e" firstAttribute="top" secondItem="eLL-t5-MPG" secondAttribute="top" constant="20" id="KcN-nc-Kx7"/>
+                            <constraint firstItem="eLL-t5-MPG" firstAttribute="bottom" secondItem="fsK-Az-JN0" secondAttribute="bottom" constant="70" id="UDn-Lc-g1j"/>
+                            <constraint firstItem="fsK-Az-JN0" firstAttribute="centerX" secondItem="Kwc-v1-dok" secondAttribute="centerX" id="uqT-CX-2cW"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="eLL-t5-MPG"/>
                     </view>
                     <tabBarItem key="tabBarItem" title="Camera Input" id="qJd-cl-g7F"/>
                     <connections>
+                        <outlet property="numOfFacesLabel" destination="fsK-Az-JN0" id="ikY-NR-Uyt"/>
                         <outlet property="switchCameraButton" destination="HgA-W6-U2e" id="pXV-6A-nPe"/>
                     </connections>
                 </viewController>
@@ -69,29 +79,47 @@
         <!--Static image-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="StaticImageViewController" customModule="FaceCounter" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="PhotoViewController" customModule="FaceCounter" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M7G-p6-nUk">
-                                <rect key="frame" x="166" y="527" width="42" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Faces detected: 0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M7G-p6-nUk">
+                                <rect key="frame" x="118.5" y="527" width="137.5" height="21"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="74P-IO-mhb">
+                                <rect key="frame" x="236" y="40" width="109" height="38"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <inset key="contentEdgeInsets" minX="10" minY="10" maxX="10" maxY="10"/>
+                                <state key="normal" title="Select Image"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="5"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="selectImagePressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="tO2-dR-LwS"/>
+                                    <action selector="switchCameraButtonPressed:" destination="EtF-Gf-9fT" eventType="touchUpInside" id="oF6-Pm-wDD"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="M7G-p6-nUk" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="34a-Mu-Dgo"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="M7G-p6-nUk" secondAttribute="bottom" constant="70" id="FdI-g9-UpJ"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="74P-IO-mhb" secondAttribute="trailing" constant="30" id="moq-cr-qVb"/>
+                            <constraint firstItem="74P-IO-mhb" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="vKg-14-R1B"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <tabBarItem key="tabBarItem" title="Static image" id="pYR-IP-gma"/>
                     <connections>
                         <outlet property="countLabel" destination="M7G-p6-nUk" id="9EB-rZ-iic"/>
+                        <outlet property="selectImageButton" destination="74P-IO-mhb" id="HhL-Jg-dlI"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
