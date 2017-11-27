@@ -10,10 +10,12 @@ import Vision
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var countLabel: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        let inputImage = #imageLiteral(resourceName: "dorsey")
+        let inputImage = #imageLiteral(resourceName: "peopleimage")
         let imageView = UIImageView(image: inputImage)
         imageView.frame = self.view.bounds
         imageView.contentMode = .scaleAspectFit
@@ -30,6 +32,9 @@ class ViewController: UIViewController {
             }
             else {
                 print("Good request:", vnrequest)
+                
+                self.countLabel.text = "Num of faces:\(vnrequest.results?.count)"
+                self.view.bringSubview(toFront: self.countLabel)
                 
                 vnrequest.results?.forEach({ (result) in
                     print("result:",result)
@@ -57,7 +62,7 @@ class ViewController: UIViewController {
             }
             })
         
-        let handler = VNImageRequestHandler(cgImage: #imageLiteral(resourceName: "dorsey").cgImage!, options: [:])
+        let handler = VNImageRequestHandler(cgImage: inputImage.cgImage!, options: [:])
         do {
             try handler.perform([request])
         } catch let handlerError {
