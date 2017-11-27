@@ -5,7 +5,6 @@
 //  Created by Leo Tsuchiya on 11/26/17.
 //  Copyright © 2017 Leo Tsuchiya. All rights reserved.
 //
-
 import UIKit
 import Vision
 
@@ -14,12 +13,12 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
-        
-        let imageView = UIImageView(image: #imageLiteral(resourceName: "dorsey"))
+        let inputImage = #imageLiteral(resourceName: "dorsey")
+        let imageView = UIImageView(image: inputImage)
         imageView.frame = self.view.bounds
         imageView.contentMode = .scaleAspectFit
         
+        let scaledHeight = view.frame.width / inputImage.size.width * inputImage.size.height
         
         self.view.addSubview(imageView)
         
@@ -40,7 +39,10 @@ class ViewController: UIViewController {
                     let x = self.view.frame.width * faceObservation.boundingBox.origin.x
                     let height = scaledHeight * faceObservation.boundingBox.height
                     imageView.backgroundColor = .purple
-                    let y = scaledHeight * (1 - faceObservation.boundingBox.origin.y) - height
+                    print("imageview height: \(imageView.bounds.height) scaledHeight: \(scaledHeight)")
+                    
+                    let topOfImageY = (imageView.bounds.height - scaledHeight) / 2
+                    let y = topOfImageY + (scaledHeight * (1 - faceObservation.boundingBox.origin.y)) - height
                     
                     let width = self.view.frame.width * faceObservation.boundingBox.width
                     
@@ -51,7 +53,6 @@ class ViewController: UIViewController {
                     self.view.addSubview(redView)
                     
                     print(faceObservation.boundingBox)
-                    
                 })
             }
             })
@@ -73,4 +74,3 @@ class ViewController: UIViewController {
 
 
 }
-
