@@ -8,14 +8,14 @@
 import UIKit
 import Vision
 
-class ViewController: UIViewController {
+class StaticImageViewController: UIViewController {
 
     @IBOutlet weak var countLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        let inputImage = #imageLiteral(resourceName: "peopleimage")
+        let inputImage = #imageLiteral(resourceName: "dorsey")
         let imageView = UIImageView(image: inputImage)
         imageView.frame = self.view.bounds
         imageView.contentMode = .scaleAspectFit
