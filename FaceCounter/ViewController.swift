@@ -15,9 +15,11 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+        
         let imageView = UIImageView(image: #imageLiteral(resourceName: "dorsey"))
         imageView.frame = self.view.bounds
         imageView.contentMode = .scaleAspectFit
+        
         
         self.view.addSubview(imageView)
      
@@ -48,9 +50,6 @@ class ViewController: UIViewController {
                     self.view.addSubview(redView)
                     
                     print(faceObservation.boundingBox)
-                    
-                    
-                    
                     
                 })
             }
