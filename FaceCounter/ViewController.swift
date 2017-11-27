@@ -15,7 +15,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        let imageView = UIImageView(image: #imageLiteral(resourceName: "peopleimage"))
+        let imageView = UIImageView(image: #imageLiteral(resourceName: "dorsey"))
         imageView.frame = self.view.bounds
         imageView.contentMode = .scaleAspectFit
         
@@ -32,11 +32,24 @@ class ViewController: UIViewController {
                 
                 vnrequest.results?.forEach({ (result) in
                     print("result:",result)
+                    
+                    guard let faceObservation = result as? VNFaceObservation else { return }
+                    
+                    let redView = UIView()
+                    redView.backgroundColor = .red
+                    redView.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
+                    self.view.addSubview(redView)
+                    
+                    print(faceObservation.boundingBox)
+                    
+                    
+                    
+                    
                 })
             }
             })
         
-        let handler = VNImageRequestHandler(cgImage: #imageLiteral(resourceName: "peopleimage").cgImage!, options: [:])
+        let handler = VNImageRequestHandler(cgImage: #imageLiteral(resourceName: "dorsey").cgImage!, options: [:])
         do {
             try handler.perform([request])
         } catch let handlerError {
