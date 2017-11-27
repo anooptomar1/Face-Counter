@@ -14,13 +14,15 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        
-        let imageView = UIImageView(image: #imageLiteral(resourceName: "dorsey"))
+        let inputImage = #imageLiteral(resourceName: "dorsey")
+        let imageView = UIImageView(image: inputImage)
         imageView.frame = self.view.bounds
         imageView.contentMode = .scaleAspectFit
         
+        let scaledHeight = view.frame.width / inputImage.size.width * inputImage.size.height
+        
         self.view.addSubview(imageView)
-     
+        
         // Check for faces
         let request = VNDetectFaceRectanglesRequest(completionHandler: { (vnrequest, error) in
             
@@ -36,8 +38,9 @@ class ViewController: UIViewController {
                     guard let faceObservation = result as? VNFaceObservation else { return }
                     
                     let x = self.view.frame.width * faceObservation.boundingBox.origin.x
-                    let height = imageView.frame.height * faceObservation.boundingBox.height
-                    let y = imageView.frame.height * (1 - faceObservation.boundingBox.origin.y) - height
+                    let height = scaledHeight * faceObservation.boundingBox.height
+                    imageView.backgroundColor = .purple
+                    let y = scaledHeight * (1 - faceObservation.boundingBox.origin.y) - height
                     
                     let width = self.view.frame.width * faceObservation.boundingBox.width
                     
@@ -48,10 +51,6 @@ class ViewController: UIViewController {
                     self.view.addSubview(redView)
                     
                     print(faceObservation.boundingBox)
-                    
-                    
-                    
-                    
                 })
             }
             })
