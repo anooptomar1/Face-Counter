@@ -16,14 +16,37 @@
                     <view key="view" contentMode="scaleToFill" id="Kwc-v1-dok">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HgA-W6-U2e">
+                                <rect key="frame" x="221" y="40" width="124" height="38"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <inset key="contentEdgeInsets" minX="10" minY="10" maxX="10" maxY="10"/>
+                                <state key="normal" title="Switch Camera"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="5"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="switchCameraButtonPressed:" destination="EtF-Gf-9fT" eventType="touchUpInside" id="qZR-TE-f3x"/>
+                                </connections>
+                            </button>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="eLL-t5-MPG" firstAttribute="trailing" secondItem="HgA-W6-U2e" secondAttribute="trailing" constant="30" id="7sc-zi-Dq9"/>
+                            <constraint firstItem="HgA-W6-U2e" firstAttribute="top" secondItem="eLL-t5-MPG" secondAttribute="top" constant="20" id="KcN-nc-Kx7"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="eLL-t5-MPG"/>
                     </view>
                     <tabBarItem key="tabBarItem" title="Camera Input" id="qJd-cl-g7F"/>
+                    <connections>
+                        <outlet property="switchCameraButton" destination="HgA-W6-U2e" id="pXV-6A-nPe"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="630-t7-aj3" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1251" y="936"/>
+            <point key="canvasLocation" x="-1375" y="984"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="dhE-dC-kTr">

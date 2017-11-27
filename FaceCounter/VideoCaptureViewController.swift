@@ -11,105 +11,132 @@ import UIKit
 import AVKit
 import Vision
 
+enum CameraDirection {
+    case front
+    case back
+}
+
 class VideoCaptureViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     
-    var redView = UIView()
+    var faceRectangles = [BorderedView]()
+    var detectFaceRequest = VNDetectFaceRectanglesRequest()
+    var requestHandler = VNSequenceRequestHandler()
+    var captureSession = AVCaptureSession()
+    var currentCamera = CameraDirection.front
+    
+    @IBOutlet weak var switchCameraButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
         
-        let captureSession = AVCaptureSession()
+//        redView = BorderedView(color: UIColor.red, frame: CGRect.zero)
         
-        guard let captureDevice = AVCaptureDevice.default(for: .video) else {
-            return
-        }
-        
-        guard let input = try? AVCaptureDeviceInput(device: captureDevice) else {return}
-        captureSession.addInput(input)
-        captureSession.startRunning()
-        
+        setupAVSession(cameraDirection: currentCamera)
         let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
         view.layer.addSublayer(previewLayer)
-        previewLayer.frame = view.frame
+        previewLayer.frame = view.bounds
         
-        let dataOutput = AVCaptureVideoDataOutput()
-        dataOutput.setSampleBufferDelegate(self as! AVCaptureVideoDataOutputSampleBufferDelegate, queue: DispatchQueue(label: "videoQueue"))
-        captureSession.addOutput(dataOutput)
+        view.bringSubview(toFront: switchCameraButton)
+    }
+    
+    func setupAVSession(cameraDirection:CameraDirection) {
+        var setupDevice:AVCaptureDevice?
+        if cameraDirection == .back {
+            setupDevice = AVCaptureDevice.default(for: .video)
+        }
+        if cameraDirection == .front {
+            setupDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
+        }
+        guard let captureDevice:AVCaptureDevice = setupDevice else {
+            return
+        }
+        guard let input = try? AVCaptureDeviceInput(device: captureDevice) else {return}
+        captureSession.beginConfiguration()
         
-//        let testView = UIView()
-//        testView.backgroundColor = .blue
-//        testView.frame = CGRect(x: 0, y: 0, width: 100, height: 100)
-//        self.view.addSubview(testView)
+        while let captureInput = captureSession.inputs.first {
+            captureSession.removeInput(captureInput)
+        }
+        captureSession.addInput(input)
         
-        self.view.backgroundColor = UIColor.brown
+        if captureSession.outputs.isEmpty {
+            let dataOutput = AVCaptureVideoDataOutput()
+            dataOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "videoQueue"))
+            dataOutput.alwaysDiscardsLateVideoFrames =  true
+            captureSession.addOutput(dataOutput)
+        }
+        
+        captureSession.commitConfiguration()
+        captureSession.startRunning()
+    }
+    
+    @IBAction func switchCameraButtonPressed(_ sender: Any) {
+        if currentCamera == .front {
+            currentCamera = .back
+        }
+        else {
+            currentCamera = .front
+        }
+        setupAVSession(cameraDirection: currentCamera)
     }
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-//        print("Camera was able to capture a frame:", Date())
         
         guard let pixelBuffer:CVPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {return}
         let ciImage = CIImage(cvImageBuffer: pixelBuffer, options: [:])
         
-        
-        let request = VNDetectFaceRectanglesRequest(completionHandler: { (vnrequest, error) in
-            
-            if let error = error {
-                print("VNRequest Error:", error)
-            }
-            else {
-                print("Good request:", vnrequest)
-                
-                if vnrequest.results?.count == 0 {
+        // Playing with orientations why does this matter?
+        // Can types work other than ciimage? pixel buffer?
+        var setupImage:CIImage?
+        if currentCamera == .front {
+            setupImage = ciImage.oriented(.leftMirrored)
+        }
+        if currentCamera == .back {
+            setupImage = ciImage.oriented(.right)
+        }
+        guard let orientedImage:CIImage = setupImage else {
+            return
+        }
+        detectFaces(image: orientedImage)
+    }
+    
+    func detectFaces(image:CIImage) {
+        do {
+            try requestHandler.perform([detectFaceRequest], on: image)
+            if let requestResults = detectFaceRequest.results as? [VNFaceObservation] {
+                if requestResults.isEmpty {
                     DispatchQueue.main.async {
-                        self.redView.removeFromSuperview()
+                        for view in self.faceRectangles {
+                            view.removeFromSuperview()
+                        }
                     }
                 }
-                
-                vnrequest.results?.forEach({ (result) in
-                    print("result:",result)
+                else {
+                    // Only create the view for the first face found
+                    drawRectangle(faceObservations: requestResults)
                     
-                    guard let faceObservation = result as? VNFaceObservation else { return }
-                    
-                    
-                    DispatchQueue.main.async {
-//                        let redView = UIView()
-                        
-                        let x = self.view.frame.width * faceObservation.boundingBox.origin.x
-                        let height = self.view.frame.height * faceObservation.boundingBox.height
-                        
-                        let y = self.view.frame.height * faceObservation.boundingBox.origin.y
-                        
-                        let width = self.view.frame.width * faceObservation.boundingBox.width
-
-                        
-                        self.redView.backgroundColor = .red
-                        self.redView.alpha = 0.5
-                        self.redView.frame = CGRect(x: x, y: y, width: width, height: height)
-                        self.view.addSubview(self.redView)
-                        self.view.bringSubview(toFront: self.redView)
-                    }
-                    
-                    print(faceObservation.boundingBox)
-                })
+                }
             }
-        })
-        
-//        let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:])
-        let videoHandler = VNSequenceRequestHandler()
-        do {
-            try videoHandler.perform([request], on: ciImage)
         } catch let handlerError {
-            print("Handler perform error:",handlerError)
+            print("Bad request perform:",handlerError)
         }
+    }
+    
+    func drawRectangle(faceObservations:[VNFaceObservation]) {
         
-        
-//        do {
-//            try handler.perform([request])
-//        } catch let handlerError {
-//            print("Handler perform error:",handlerError)
-//        }
-        
+        for (index, faceObservation) in faceObservations.enumerated() {
+            DispatchQueue.main.async {
+                let x = self.view.frame.width * faceObservation.boundingBox.origin.x
+                let height = self.view.frame.height * faceObservation.boundingBox.height
+                let y = self.view.frame.height * (1 - faceObservation.boundingBox.origin.y) - height
+                let width = self.view.frame.width * faceObservation.boundingBox.width
+                
+                if self.faceRectangles.count <= index {
+                    self.faceRectangles.append(BorderedView(color: UIColor.red, frame: CGRect.zero))
+                }
+                self.faceRectangles[index].frame = CGRect(x: x, y: y, width: width, height: height)
+                self.view.addSubview(self.faceRectangles[index])
+            }
+        }
     }
 }
 
